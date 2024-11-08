@@ -1,0 +1,110 @@
+#include <iostream>
+
+using namespace std;
+
+const int MAX_NODES = 50;  // Maximum number of nodes in the graph
+
+// Declare Global variables
+static int m, n;  
+static int c = 0;  
+static int count = 0;  
+int g[MAX_NODES][MAX_NODES]; 
+int x[MAX_NODES];  
+
+// Function declarations
+void nextValue(int k);  
+void GraphColoring(int k);  
+int calculateMaxDegree();  
+
+int main() {
+    
+    cout << "Enter the number of nodes (up to " << MAX_NODES << "): ";
+    cin >> n;
+
+    
+    cout << "\nEnter Adjacency Matrix:\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> g[i][j];  // Fill the adjacency matrix
+        }
+    }
+
+    // Calculate the minimum number of colors needed (one more than the maximum degree)
+    m = calculateMaxDegree() + 1;
+
+    cout << "Number of colors used: " << m << endl;
+    cout << "\nPossible Solutions are:\n";
+    
+    // Start the graph coloring process from the first node
+    GraphColoring(0);
+
+    return 0;
+}
+
+// Recursive function to find all possible colorings for the graph
+void GraphColoring(int k) {
+    while (true) {
+        nextValue(k);  // Assign the next valid color to node k
+        if (x[k] == 0) {
+            return;  // No valid color found, backtrack
+        }
+
+        if (k == n - 1) {  // If all nodes have been colored
+            c = 1;
+            // Print the current solution
+            for (int i = 0; i < n; i++) {
+                cout << x[i] << " ";  // Print the color assigned to each node
+            }
+            count++;  // Increase the solution count
+            cout << endl;
+        } else {
+            GraphColoring(k + 1);  // Recur to the next node
+        }
+    }
+}
+
+// Function to assign the next valid color to node k
+void nextValue(int k) {
+    while (true) {
+        x[k] = (x[k] + 1) % (m + 1);  // Move to the next color, wrapping around if necessary
+        if (x[k] == 0) {
+            return;  // If no color is available, return to backtrack
+        }
+
+        // Check if the current color assignment causes any conflicts
+        bool conflict = false;
+        for (int j = 0; j < n; j++) {
+            if (g[k][j] == 1 && x[k] == x[j]) {  // Conflict if adjacent nodes have the same color
+                conflict = true;
+                break;
+            }
+        }
+        if (!conflict) {
+            return;  // No conflict, color is valid
+        }
+    }
+}
+
+// Function to calculate the maximum degree of any node in the graph
+int calculateMaxDegree() {
+    int degrees[MAX_NODES] = {0};  
+
+    // Calculate the degree of each node
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (g[i][j] == 1) {
+                degrees[i]++;
+            }
+        }
+    }
+
+    // Find the maximum degree for  all nodes
+    int maxDegree = 0;
+    for (int i = 0; i < n; i++) {
+        if (degrees[i] > maxDegree) {
+            maxDegree = degrees[i];
+        }
+    }
+
+    return maxDegree;  
+}
